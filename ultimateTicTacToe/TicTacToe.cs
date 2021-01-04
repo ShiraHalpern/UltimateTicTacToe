@@ -3,204 +3,119 @@ namespace ultimateTicTacToe
 {
     public class TicTacToe
     {
-        private char[,] board = new char[3, 3];
 
-        public char player { set; get; }
-        public char winner { set; get; }
-        public int countMoves { set; get; }
+        public Board gameBoard;
+        private int movesCounter;
+        private char winner;
+        
+        private int setedCellRowOfCurrentMove;
+        private int setedCellColOfCurrentMove;
 
-
-        public TicTacToe(char starterPlayer)
-        {
-            player = starterPlayer;
-            countMoves = 0;
-            InitializeBoard();
+        public char Winner { get => winner; set => winner = value; }
+       
+        public TicTacToe() {
+            gameBoard = new Board();
+            movesCounter = 0;
+            winner = ' ';
         }
 
-        public TicTacToe()
+        public bool IsPlayerWinning(char playerSymbol)
         {
-            player = 'X';
-            countMoves = 0;
-            InitializeBoard();
+            return this.IsPlayerWinning(this.gameBoard, playerSymbol);
         }
 
-        public void RunGame()
+        public bool IsPlayerWinning(Board board, char playerSymbol)
         {
-            Print();
-            while (countMoves!=9)
+            return
+                IsPlayerWinningDiagon(board, playerSymbol) ||
+                IsPlayerWinningRow(board, playerSymbol, 0) ||
+                IsPlayerWinningRow(board, playerSymbol, 1) ||
+                IsPlayerWinningRow(board, playerSymbol, 2) ||
+                IsPlayerWinningCol(board, playerSymbol, 0) ||
+                IsPlayerWinningCol(board, playerSymbol, 1) ||
+                IsPlayerWinningCol(board, playerSymbol, 2);
+            /*int differanceBetweenLastSetedCellIndxes = Math.Abs(setedCellRowOfCurrentMove - setedCellColOfCurrentMove);
+            bool lastSetedCellIsOnDiagon = (differanceBetweenLastSetedCellIndxes == 0 || differanceBetweenLastSetedCellIndxes == 2);
+
+            if (lastSetedCellIsOnDiagon)
             {
-                MakeMove(player);
-                Console.Clear();
-                Print();
-                if (Win())
-                {
-                    Console.WriteLine($"{player} has won the game!!");
-                    winner = player;
-                    break;
-                }
-                SwichTurn();
+                return IsPlayerWinningDiagon(playerSymbol, gameBoard);
             }
-            Console.WriteLine("DROW!!");
+            return IsPlayerWinningRow(setedCellRowOfCurrentMove, playerSymbol, gameBoard) ||
+                IsPlayerWinningCol(setedCellColOfCurrentMove, playerSymbol, gameBoard);*/
+        
+        }
+        
+        public void SetCell(char playerSymbol, int cell)
+        {
+            this.SetCell(this.gameBoard, playerSymbol, cell/3, cell%3);
         }
 
-        public void MakeMove(char currentPlayer)
+        public void SetCell(Board board, char playerSymbol, int row, int col)
         {
-            int row;
-            int col;
-            bool setSucceed;
-            while (true)//while setBoardAtPosition didn't succeed
+            board[row, col] = playerSymbol;
+        }
+
+        public bool IsBoardFull()
+        {
+            return IsBoardFull(this.gameBoard);
+        }
+
+
+        public bool IsBoardFull(Board board)
+        {
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    if (board[i, j] == ' ')
+                        return false;
+            return true;
+
+        }
+
+        public bool IsPlayerWinningDiagon(Board board, char playerSymbol)
+        {
+            return board[0, 0] == playerSymbol && board[1, 1] == playerSymbol && board[2, 2] == playerSymbol ||
+                board[0, 2] == playerSymbol && board[1, 1] == playerSymbol && board[2, 0] == playerSymbol;
+        }
+
+        public bool IsPlayerWinningRow(Board board, char playerSymbol, int row)
+        {
+            try
             {
-
-                row = GetRowFromUsr();
-                col = GetColFromUsr();
-
-                setSucceed = SetBoardAtPositionIfAvailable(row, col, currentPlayer);
-                if (setSucceed)
-                {
-                    countMoves++;
-                    break;
-                }
-                else
-                    Console.WriteLine("this place is already taken, try again");
+                if (board[row, 0] == playerSymbol && board[row, 1] == playerSymbol && board[row, 2] == playerSymbol)
+                    return true;
+                return false;
             }
-             
-        }
-
-        public bool SetBoardAtPositionIfAvailable(int row, int col, char val)
-        {
-            if (board[row, col] == ' ')
+            catch (IndexOutOfRangeException)
             {
-                board[row, col] = val;
-                return true;
-            }
-            return false;
-        }
-
-        public int GetRowFromUsr()
-        {
-            while (true)
-            {
-                try
-                {
-                    Console.Write("enter a row number:");
-                    int row = Convert.ToInt32(Console.ReadLine());
-                    if (row == 0 || row == 1 || row == 2)
-                        return row;
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("incorrect input");
-                }
+                return false;
             }
         }
 
-        public int GetColFromUsr()
+        public bool IsPlayerWinningCol(Board board, char playerSymbol, int col)
         {
-            while (true)
+            try
             {
-                try
-                {
-                    Console.Write("enter a column number:");
-                    int col = Convert.ToInt32(Console.ReadLine());
-                    if (col == 0 || col == 1 || col == 2)
-                        return col;
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("incorrect input");
-                }
+                if (board[0, col] == playerSymbol && board[1, col] == playerSymbol && board[2, col] == playerSymbol)
+                    return true;
+                return false;
+            }
+            catch (IndexOutOfRangeException)
+            {
+                return false;
             }
         }
 
-        public bool Win()
+        /*
+
+        public void SetCell(int row, int col, Symbol symbol)
         {
-            return WinsRow(0) || WinsRow(1) || WinsRow(2) || WinsCol(0) || WinsCol(1) || WinsCol(2) || WinsMainDiagon() || WinsSecondaryDiagon();
-        }
-        public bool WinsRow(int row)
-        {
-            if (board[row, 0] == player && board[row, 1] == player && board[row, 2] == player)
-                return true;
-            return false;
+            gameBoard[row, col] = symbol;
+            setedCellRowOfCurrentMove = row;
+            setedCellColOfCurrentMove = col;
         }
 
-        public bool WinsCol(int col)
-        {
-            if (board[0, col] == player && board[1, col] == player && board[2, col] == player)
-                return true;
-            return false;
-        }
-
-        public bool WinsMainDiagon()
-        {
-            if (board[0, 0] == player && board[1, 1] == player && board[2, 2] == player)
-                return true;
-            return false;
-        }
-
-        public bool WinsSecondaryDiagon()
-        {
-            if (board[0, 2] == player && board[1, 1] == player && board[2, 0] == player)
-                return true;
-            return false;
-        }
-
-        public void SwichTurn()
-        {
-            if (player == 'X')
-                player = 'O';
-            else
-                player = 'X';
-        }
-
-        public void Print()
-        {
-            //Console.WriteLine("   0   1   2  ");
-
-            PrintLineSeperator();
-
-            for (int row = 0; row < 3; row++)
-            {
-                Console.WriteLine($"| {board[row, 0]} | {board[row, 1]} | {board[row, 2]} |");
-                PrintLineSeperator();
-
-                //Console.WriteLine($"{row}| {board[row, 0]} | {board[row, 1]} | {board[row, 2]} |");
-            }
-
-
-        }
-
-        public void PrintRow(int num)
-        {
-            switch (num)
-            {
-                case 0:
-                    Console.Write($"| {board[num, 0]} | {board[num, 1]} | {board[num, 2]} |");
-                    break;
-                case 1:
-                    Console.Write($"| {board[num, 0]} | {board[num, 1]} | {board[num, 2]} |");
-                    break;
-                case 2:
-                    Console.Write($"| {board[num, 0]} | {board[num, 1]} | {board[num, 2]} |");
-                    break;
-                default:
-                    Console.WriteLine("line is not existed in game board");
-                    break;
-            }
-
-        }
-
-        public void PrintLineSeperator()
-        {
-            Console.WriteLine(" ----------- ");
-        }
-
-        public void InitializeBoard()
-        {
-            for (int row = 0; row < 3; row++)
-                for (int col = 0; col < 3; col++)
-                    board[row, col] = ' ';
-        }
-
-
+      
+    */
     }
 }

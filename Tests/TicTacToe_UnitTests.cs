@@ -1,245 +1,131 @@
 using NUnit.Framework;
 using ultimateTicTacToe;
+using FluentAssertions;
+using System;
+using Moq;
+
 namespace Tests
 {
     public class TicTacToe_UnitTests
     {
-        [SetUp]
-        public void Setup()
-        {
 
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        public void IsPlayerWinning_fullRow_shouldReturnTrue(int row)
+        {
+            // Arrange
+            TicTacToe game = new TicTacToe();
+            Board board = new Board();
+            board[row, 0] = 'X';
+            board[row, 1] = 'X';
+            board[row, 2] = 'X';
+
+            // Act
+            bool isPlayerWinning = game.IsPlayerWinning(board, 'X');
+
+            // Assert
+            Assert.AreEqual(true, isPlayerWinning);
+        }
+
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        public void IsPlayerWinning_fullCol_shouldReturnTrue(int col)
+        {
+            // Arrange
+            TicTacToe game = new TicTacToe();
+            Board board = new Board();
+            board[0, col] = 'X';
+            board[1, col] = 'X';
+            board[2, col] = 'X';
+
+            // Act
+            bool isPlayerWinning = game.IsPlayerWinning(board, 'X');
+
+            // Assert
+            Assert.AreEqual(true, isPlayerWinning);
+        }
+
+        [TestCase("main")]
+        [TestCase("secondary")]
+        public void IsPlayerWinning_fullDiagon_shouldReturnTrue(string diagon)
+        {
+            // Arrange
+            TicTacToe game = new TicTacToe();
+            Board board = new Board();
+
+            board[1, 1] = 'X';
+            if(diagon== "main")
+            {
+                board[0, 0] = 'X';
+                board[2, 2] = 'X';
+            }
+            else
+            {
+                board[0, 2] = 'X';
+                board[2, 0] = 'X';
+            }
+            
+            // Act
+            bool isPlayerWinning = game.IsPlayerWinning(board, 'X');
+
+            // Assert
+            Assert.AreEqual(true, isPlayerWinning);
         }
 
         [Test]
-        public void TestWinsRow_RowFull_ReturnsTrue()
+        public void IsPlayerWinning_notWinning_shouldReturnFalse()
         {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(0, 0, 'X');
-            game.SetBoardAtPositionIfAvailable(0, 1, 'X');
-            game.SetBoardAtPositionIfAvailable(0, 2, 'X');
+            // Arrange
+            TicTacToe game = new TicTacToe();
+            Board board = new Board();
+            board[0, 0] = 'X';
+            board[1, 0] = 'O';
+            board[2, 0] = 'X';
 
-            //act
-            bool result = game.WinsRow(0);
+            // Act
+            bool isPlayerWinning = game.IsPlayerWinning(board, 'X');
 
-            //assert
-            Assert.IsTrue(result);
+            // Assert
+            Assert.AreEqual(false, isPlayerWinning);
         }
 
         [Test]
-        public void TestWinsRow_EmptyRow_ReturnsFalse()
+        public void SetCell_shouldChangeValueOfCell()
         {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
+            // Arrange
+            TicTacToe game = new TicTacToe();
+            Board board = new Board();
+            
+            // Act
+            game.SetCell(board, 'X', 1, 1);
 
-            //act
-            bool result = game.WinsRow(0);
-
-            //assert
-            Assert.IsFalse(result);
+            // Assert
+            Assert.AreEqual('X', board[1,1]);
         }
 
         [Test]
-        public void TestWinsRow_PlayerFilledLeft_ReturnsFalse()
+        public void IsBoardFull_boardIsFull_ShouldReturnTrue()
         {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(0, 0, 'X');
+            // Arrange
+            TicTacToe game = new TicTacToe();
+            Board board = new Board();
+            board[0, 0] = 'X';
+            board[0, 1] = 'X';
+            board[0, 2] = 'X';
+            board[1, 0] = 'X';
+            board[1, 1] = 'X';
+            board[1, 2] = 'X';
+            board[2, 0] = 'X';
+            board[2, 1] = 'X';
+            board[2, 2] = 'X';
 
-            //act
-            bool result = game.WinsRow(0);
+            // Act
+            bool isBoardFull = game.IsBoardFull(board);
 
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsRow_PlayerFilledMiddle_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(0, 1, 'X');
-
-            //act
-            bool result = game.WinsRow(0);
-
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsRow_PlayerFilledRight_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(0, 2, 'X');
-
-            //act
-            bool result = game.WinsRow(0);
-
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsRow_PlayerFilledLeftAndMiddle_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(0, 0, 'X');
-            game.SetBoardAtPositionIfAvailable(0, 1, 'X');
-
-            //act
-            bool result = game.WinsRow(0);
-
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsRow_PlayerFilledLeftAndRight_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(0, 0, 'X');
-            game.SetBoardAtPositionIfAvailable(0, 2, 'X');
-
-            //act
-            bool result = game.WinsRow(0);
-
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsRow_PlayerFilledMiddleAndRight_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(0, 1, 'X');
-            game.SetBoardAtPositionIfAvailable(0, 2, 'X');
-
-            //act
-            bool result = game.WinsRow(0);
-
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsCol_ColFull_ReturnsTrue()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(0, 0, 'X');
-            game.SetBoardAtPositionIfAvailable(1, 0, 'X');
-            game.SetBoardAtPositionIfAvailable(2, 0, 'X');
-
-            //act
-            bool result = game.WinsCol(0);
-
-            //assert
-            Assert.IsTrue(result);
-        }
-
-        [Test]
-        public void TestWinsCol_EmptyCol_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-
-            //act
-            bool result = game.WinsCol(0);
-
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsCol_PlayerFilledTop_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(0, 0, 'X');
-
-            //act
-            bool result = game.WinsCol(0);
-
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsCol_PlayerFilledMiddle_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(1, 0, 'X');
-
-            //act
-            bool result = game.WinsCol(0);
-
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsCol_PlayerFilledBottom_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(2, 0, 'X');
-
-            //act
-            bool result = game.WinsCol(0);
-
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsCol_PlayerFilledTopAndMiddle_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(0, 0, 'X');
-            game.SetBoardAtPositionIfAvailable(1, 0, 'X');
-
-            //act
-            bool result = game.WinsCol(0);
-
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsCol_PlayerFilledMiddleAndBottom_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(1, 0, 'X');
-            game.SetBoardAtPositionIfAvailable(2, 0, 'X');
-
-            //act
-            bool result = game.WinsCol(0);
-
-            //assert
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void TestWinsCol_PlayerFilledTopAndBottom_ReturnsFalse()
-        {
-            //arrange
-            TicTacToe game = new TicTacToe('X');
-            game.SetBoardAtPositionIfAvailable(0, 0, 'X');
-            game.SetBoardAtPositionIfAvailable(2, 0, 'X');
-
-            //act
-            bool result = game.WinsCol(0);
-
-            //assert
-            Assert.IsFalse(result);
+            // Assert
+            Assert.AreEqual(true, isBoardFull);
         }
 
     }

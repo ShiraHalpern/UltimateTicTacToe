@@ -6,7 +6,7 @@ namespace ultimateTicTacToe
     {
         static void Main(string[] args)
         {
-            var game = new TicTacToe();
+            var game = new U_TicTacToe();
             game.RunGame();
         }
     }
